@@ -10,6 +10,27 @@ import random
 
 
 
+'''scoreboard'''
+
+#list of hits to fill in the visual scoreboard
+#range 0 to 19 where 18 and 19 are total hits for each team
+hits_by_team = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,]
+total_hits_by_team = [0, 0]
+
+#function that draws a scoreboard for the game
+def draw_scoreboard(hits_by_team, total_hits_by_team):
+	print "Inning   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | Total |"
+	print "-----------"
+	print "Player   | %i | %i | %i | %i | %i | %i | %i | %i | %i |   %i   |" %(hits_by_team[0], hits_by_team[2], hits_by_team[4], hits_by_team[6], hits_by_team[8], hits_by_team[10], hits_by_team[12], hits_by_team[14], hits_by_team[16], total_hits_by_team[0])
+	print "-----------"
+	print "Computer | %i | %i | %i | %i | %i | %i | %i | %i | %i |   %i   |" %(hits_by_team[1], hits_by_team[3], hits_by_team[5], hits_by_team[7], hits_by_team[9], hits_by_team[11], hits_by_team[13], hits_by_team[15], hits_by_team[17], total_hits_by_team[1])
+
+#draw_scoreboard(hits_by_team, total_hits_by_team)
+
+'''end scoreboard'''
+
+
+
 '''pitching'''
 
 #defining strike zone and ball zone
@@ -162,6 +183,7 @@ def play_player_pitch():
 '''outs'''
 
 #outs when computer is pitching
+#a walk = a hit
 def outs_comp_pitch():
 	strikes = 0
 	balls = 0
@@ -177,7 +199,7 @@ def outs_comp_pitch():
 			balls += 1
 			if balls == 4:
 				print "Player walked."
-				play_result = 'walk'
+				play_result = 'hit'
 				break
 		elif playing_result == 'hit':
 			print "Player got a hit."
@@ -203,7 +225,7 @@ def outs_player_pitch():
 			balls += 1
 			if balls == 4:
 				print "Player walked."
-				play_result = 'walk'
+				play_result = 'hit'
 				break
 		elif playing_result == 'hit':
 			print "Player got a hit."
@@ -218,26 +240,37 @@ def outs_player_pitch():
 
 '''half inning'''
 
+#funtions that count the outs and the hits
+#outs will help iterate through the innings
+#hits will be used to add to the scoreboard
+
 def inning_comp_pitch():
 	outs = 0
+	hits = 0
 	while outs < 3:
-		outs_result = outs_comp_pitch()
-		if outs_result == 'out':
+		play_result = outs_comp_pitch()
+		if play_result == 'hit':
+			hits += 1
+		if play_result == 'out':
 			outs += 1
 		print "Outs: %i." %(outs)
-	return outs
+		inning_results = [hits, outs]
+	return inning_results
 
 def inning_player_pitch():
 	outs = 0
+	hits = 0
 	while outs < 3:
-		outs_result = outs_player_pitch()
-		if outs_result == 'out':
+		play_result = outs_player_pitch()
+		if play_result == 'hit':
+			hits += 1
+		if play_result == 'out':
 			outs += 1
 		print "Outs: %i." %(outs)
-	return outs
+		inning_results = [hits, outs]
+	return inning_results
 
 '''end half inning'''
-
 
 
 '''innings'''
@@ -249,19 +282,35 @@ def inning_player_pitch():
 def baseball_game():
 	inning = 1
 	outs = 0
+	hits_by_team_counter = 0
 	while inning < 19:
 		if inning % 2 == 1:
 			print "It's the top of inning %i." %((inning + 1) / 2)
 			inning_result = inning_comp_pitch()
-			if inning_result == 3:
+			if inning_result[0] >= 1:
+				hits_by_team[hits_by_team_counter] += inning_result[0]
+				total_hits_by_team[0] = (hits_by_team[0]+hits_by_team[2]+hits_by_team[4]+hits_by_team[6]+hits_by_team[8]+hits_by_team[10]+hits_by_team[12]+hits_by_team[14]+hits_by_team[16])
+			if inning_result[1] == 3:
+				draw_scoreboard(hits_by_team, total_hits_by_team)
 				inning += 1
+				hits_by_team_counter += 1
 		elif inning % 2 == 0:
 			print "It's the bottom of inning %i." %(inning / 2)
 			inning_result = inning_player_pitch()
-			if inning_result == 3:
+			if inning_result[0] >= 1:
+				hits_by_team[hits_by_team_counter] += inning_result[0]
+				total_hits_by_team[1] = (hits_by_team[1]+hits_by_team[3]+hits_by_team[5]+hits_by_team[7]+hits_by_team[9]+hits_by_team[11]+hits_by_team[13]+hits_by_team[15]+hits_by_team[17])
+			if inning_result[1] == 3:
+				draw_scoreboard(hits_by_team, total_hits_by_team)
 				inning += 1
+				hits_by_team_counter += 1
+	if total_hits_by_team[0] > total_hits_by_team[1]:
+		print "You won!"
+	elif total_hits_by_team[1] > total_hits_by_team[0]:
+		print "Computer won. :("
 	return "Game over!"
 #need to add hits logic and who wins
 
-print baseball_game()
 '''end innings'''
+
+print baseball_game()
